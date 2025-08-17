@@ -25,7 +25,7 @@ function App() {
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
   // TODO: Replace with your actual site key in a .env file for production
-  const RECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+  const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
   useEffect(() => {
     if (token) {
