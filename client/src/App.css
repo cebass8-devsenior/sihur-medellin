@@ -1,0 +1,102 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.App-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.App-logo {
+  height: 5vmin;
+  pointer-events: none;
+  margin-right: 1rem;
+}
+
+.stats-cards {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 2rem;
+}
+
+.stats-cards .card {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 5px;
+  text-align: center;
+  width: 30%;
+}
+
+.registros table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.registros th, .registros td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.registros th {
+  background-color: #f2f2f2;
+}
+
+.top-stats {
+  margin-bottom: 2rem;
+}
+
+.top-stats-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.top-stat-card {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 5px;
+  width: 30%;
+  margin-bottom: 1rem;
+}
