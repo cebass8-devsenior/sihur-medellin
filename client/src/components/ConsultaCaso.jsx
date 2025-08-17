@@ -5,7 +5,7 @@ function ConsultaCaso({ token, caseId }) {
   const [caseDetails, setCaseDetails] = useState(null);
   const [error, setError] = useState('');
 
-  const API_URL = 'http://localhost:3001';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   useEffect(() => {
     const fetchCaseDetails = async () => {

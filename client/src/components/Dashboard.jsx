@@ -40,7 +40,7 @@ function Dashboard({ userRole }) {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [changePasswordMessage, setChangePasswordMessage] = useState('');
 
-  const API_URL = 'http://localhost:3001';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
   const token = localStorage.getItem('token');
 
   const fetchData = async () => {

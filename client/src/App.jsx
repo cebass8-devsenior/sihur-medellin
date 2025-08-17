@@ -23,7 +23,7 @@ function App() {
   // State for Remember Me checkbox
   const [rememberMe, setRememberMe] = useState(false);
 
-  const API_URL = 'http://localhost:3001';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
   // TODO: Replace with your actual site key in a .env file for production
   const RECAPTCHA_SITE_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 

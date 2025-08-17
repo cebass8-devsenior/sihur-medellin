@@ -18,7 +18,7 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
   const [success, setSuccess] = useState('');
 
   const isEditMode = Boolean(caseToEdit);
-  const API_URL = 'http://localhost:3001';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
   const direccionInputRef = useRef(null);
 
   const comunasData = {
