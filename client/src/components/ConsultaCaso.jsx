@@ -131,3 +131,12 @@ function ConsultaCaso({ token, caseId }) {
               <p><strong>Teléfono Móvil:</strong> {persona.telefono_movil}</p>
               <p><strong>Dirección:</strong> {persona.direccion}</p>
               {persona.fotografia && <img src={persona.fotografia} alt="Fotografía" style={{ maxWidth: '100px', maxHeight: '100px' }} />}
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
+export default ConsultaCaso;
