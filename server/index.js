@@ -10,8 +10,17 @@ const app = express();
 const port = 3001;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+const corsOptions = {
+  origin: 'https://sihur-medellin.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Secret keys - IMPORTANT: Use environment variables in production
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
