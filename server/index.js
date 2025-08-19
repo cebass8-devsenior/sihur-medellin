@@ -28,17 +28,17 @@ const startServer = (db) => {
   app.post('/login', async (req, res) => {
     const { username, password, captchaToken, rememberMe } = req.body;
 
-    if (!captchaToken) {
-      return res.status(400).json({ message: 'Por favor, complete el Captcha.' });
-    }
+    // if (!captchaToken) {
+    //   return res.status(400).json({ message: 'Por favor, complete el Captcha.' });
+    // }
 
     try {
-      const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${captchaToken}`;
-      const recaptchaRes = await axios.post(verifyUrl);
+      // const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${captchaToken}`;
+      // const recaptchaRes = await axios.post(verifyUrl);
 
-      if (!recaptchaRes.data.success) {
-        return res.status(400).json({ message: 'Falló la verificación del Captcha. Intente de nuevo.' });
-      }
+      // if (!recaptchaRes.data.success) {
+      //   return res.status(400).json({ message: 'Falló la verificación del Captcha. Intente de nuevo.' });
+      // }
 
       const sql = "SELECT * FROM users WHERE username = ?";
       db.get(sql, [username], (err, user) => {
