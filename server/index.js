@@ -11,7 +11,7 @@ const port = 3001;
 
 // Middleware
 const corsOptions = {
-  origin: 'https://sihur-medellin.vercel.app',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
