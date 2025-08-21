@@ -28,6 +28,11 @@ const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || 'YOUR_SECRET_KE
 
 // This function will set up all routes and start the server
 const startServer = (db) => {
+  // Health check endpoint
+  app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+  });
+
   // Basic route
   app.get('/', (req, res) => {
     res.send('Hello from the SIHUR API!');
@@ -581,17 +586,24 @@ const startServer = (db) => {
   // Start the server
   const PORT = process.env.PORT || port;
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is listening on port ${PORT}`);
   });
 };
 
 // Initialize DB and then start the server
-initializeDatabase()
-  .then(db => {
-    console.log("Database initialized successfully.");
-    startServer(db);
-  })
-  .catch(err => {
-    console.error("Failed to initialize database:", err);
-    process.exit(1); // Exit if DB initialization fails
-  });
+console.log('Initializing server...');
+try {
+  initializeDatabase()
+    .then(db => {
+      console.log("Database initialized successfully.");
+      startServer(db);
+      console.log('Server started.');
+    })
+    .catch(err => {
+      console.error("Failed to initialize database:", err);
+      process.exit(1); // Exit if DB initialization fails
+    });
+} catch (e) {
+  console.error('Unhandled exception during server startup:', e);
+  process.exit(1);
+}
