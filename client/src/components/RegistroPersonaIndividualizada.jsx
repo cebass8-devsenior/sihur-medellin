@@ -39,7 +39,7 @@ function RegistroPersonaIndividualizada({ token }) {
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.post(`${API_URL}/api/personas_individualizadas`, formData, { headers });
+      const response = await axios.post(`${API_URL}/api/v1/personas_individualizadas`, formData, { headers });
       setSuccess('Persona individualizada registrada exitosamente.');
       // Clear form
       setFormData({
@@ -62,7 +62,7 @@ function RegistroPersonaIndividualizada({ token }) {
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/api/personas_individualizadas/search?query=${searchQuery}`, { headers });
+      const response = await axios.get(`${API_URL}/api/v1/personas_individualizadas/search?query=${searchQuery}`, { headers });
       setSearchResults(response.data);
     } catch (err) {
       setError('Error al buscar personas individualizadas. Por favor, intente de nuevo.');
@@ -80,7 +80,7 @@ function RegistroPersonaIndividualizada({ token }) {
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      await axios.post(`${API_URL}/api/casos/${selectedCaseId}/personas_individualizadas`, { id_persona_individualizada: personaId }, { headers });
+      await axios.post(`${API_URL}/api/v1/casos/${selectedCaseId}/personas_individualizadas`, { id_persona_individualizada: personaId }, { headers });
       setSuccess('Persona individualizada asociada al caso exitosamente.');
     } catch (err) {
       setError('Error al asociar persona individualizada al caso. Por favor, intente de nuevo.');

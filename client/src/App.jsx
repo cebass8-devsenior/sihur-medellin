@@ -73,7 +73,7 @@ function App() {
     e.preventDefault();
     setForgotPasswordMessage('');
     try {
-      const response = await axios.post(`${API_URL}/api/auth/forgot-password`, { email: forgotPasswordEmail });
+      const response = await axios.post(`${API_URL}/api/v1/auth/forgot-password`, { email: forgotPasswordEmail });
       setForgotPasswordMessage(response.data.message);
       setForgotPasswordEmail('');
     } catch (error) {

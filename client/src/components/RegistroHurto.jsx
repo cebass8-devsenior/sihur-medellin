@@ -207,12 +207,12 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
     try {
       if (isEditMode) {
         // Update existing case
-        await axios.put(`${API_URL}/api/casos/${caseToEdit.id}`, payload, { headers });
+        await axios.put(`${API_URL}/api/v1/casos/${caseToEdit.id}`, payload, { headers });
         setSuccess('Caso actualizado exitosamente.');
         if (onCaseUpdated) onCaseUpdated({ ...caseToEdit, ...payload });
       } else {
         // Create new case
-        const response = await axios.post(`${API_URL}/api/casos`, payload, { headers });
+        const response = await axios.post(`${API_URL}/api/v1/casos`, payload, { headers });
         setSuccess('Caso registrado exitosamente.');
         if (onCaseAdded) onCaseAdded(response.data);
         // Clear form only on successful creation
