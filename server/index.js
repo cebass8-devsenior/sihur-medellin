@@ -356,7 +356,7 @@ const startServer = (db) => {
     }
   });
 
-  app.get('/api/casos/search', verifyToken, async (req, res) => {
+  app.get('/api/casos/search', async (req, res) => {
     const { placa_hurtado, placa_implicado, nombre_victima, cedula_persona, nombre_persona } = req.query;
 
     let sql = `SELECT DISTINCT c.* FROM casos c`;
