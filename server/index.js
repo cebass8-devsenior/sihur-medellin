@@ -33,6 +33,10 @@ const startServer = (db) => {
     res.status(200).send('OK');
   });
 
+  app.get('/api/test', (req, res) => {
+    res.status(200).send('API test OK');
+  });
+
   // Basic route
   app.get('/', (req, res) => {
     res.send('Hello from the SIHUR API!');
