@@ -389,7 +389,7 @@ const startServer = (db) => {
     }
 
     if (joins.length > 0) {
-      sql += ` ${joins.join(' ')}`;
+      sql += ` ${[...new Set(joins)].join(' ')}`;
     }
     if (conditions.length > 0) {
       sql += ` WHERE ${conditions.join(' AND ')}`;
