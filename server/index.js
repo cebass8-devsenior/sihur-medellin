@@ -106,7 +106,7 @@ const startServer = (db) => {
     res.json({ message: `Welcome, ${req.user.username}! You are a ${req.user.role}. This is protected data.` });
   });
 
-  app.post('/api/v1/user/change-password', verifyToken, (req, res) => {
+  app.post('/api/user/change-password', verifyToken, (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
 
@@ -133,7 +133,7 @@ const startServer = (db) => {
     });
   });
 
-  app.post('/api/v1/auth/forgot-password', async (req, res) => {
+  app.post('/api/auth/forgot-password', async (req, res) => {
     const { email } = req.body;
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenExpiresAt = Date.now() + 3600000;
@@ -157,7 +157,7 @@ const startServer = (db) => {
     });
   });
 
-  app.post('/api/v1/auth/reset-password', async (req, res) => {
+  app.post('/api/auth/reset-password', async (req, res) => {
     const { token, newPassword } = req.body;
 
     db.get("SELECT id, reset_token_expires_at FROM users WHERE reset_token = ?", [token], (err, user) => {
@@ -180,7 +180,7 @@ const startServer = (db) => {
     });
   });
 
-  app.get('/api/v1/casos/today', verifyToken, (req, res) => {
+  app.get('/api/casos/today', verifyToken, (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -195,7 +195,7 @@ const startServer = (db) => {
     });
   });
 
-  app.post('/api/v1/casos', verifyToken, (req, res) => {
+  app.post('/api/casos', verifyToken, (req, res) => {
     const { fecha, comuna, barrio, direccion, victimas, vehiculos_implicados, camaras_seguridad } = req.body;
     const codigo_caso = `CASO-${Date.now()}`;
 
@@ -249,7 +249,7 @@ const startServer = (db) => {
     });
   });
 
-  app.post('/api/v1/personas_individualizadas', verifyToken, (req, res) => {
+  app.post('/api/personas_individualizadas', verifyToken, (req, res) => {
     const { nombres_apellidos, cedula, telefono_movil, direccion, fotografia } = req.body;
 
     const sql = 'INSERT INTO personas_individualizadas (nombres_apellidos, cedula, telefono_movil, direccion, fotografia) VALUES (?,?,?,?,?)';
@@ -261,7 +261,7 @@ const startServer = (db) => {
     });
   });
 
-  app.get('/api/v1/personas_individualizadas/search', verifyToken, (req, res) => {
+  app.get('/api/personas_individualizadas/search', verifyToken, (req, res) => {
     const { query } = req.query;
     if (!query) {
       return res.status(400).json({ message: 'Query parameter is required' });
@@ -277,7 +277,7 @@ const startServer = (db) => {
     });
   });
 
-  app.post('/api/v1/casos/:id/personas_individualizadas', verifyToken, (req, res) => {
+  app.post('/api/casos/:id/personas_individualizadas', verifyToken, (req, res) => {
     const id_caso = req.params.id;
     const { id_persona_individualizada } = req.body;
 
@@ -290,7 +290,7 @@ const startServer = (db) => {
     });
   });
 
-  app.get('/api/v1/casos/:id', verifyToken, async (req, res) => {
+  app.get('/api/casos/:id', verifyToken, async (req, res) => {
     const id_caso = req.params.id;
 
     try {
@@ -360,7 +360,7 @@ const startServer = (db) => {
     }
   });
 
-  app.get('/api/v1/casos/search', async (req, res) => {
+  app.get('/api/casos/search', async (req, res) => {
     const { placa_hurtado, placa_implicado, nombre_victima, cedula_persona, nombre_persona } = req.query;
 
     let sql = `SELECT DISTINCT c.* FROM casos c`;
@@ -412,7 +412,7 @@ const startServer = (db) => {
     });
   });
 
-  app.put('/api/v1/casos/:id', verifyToken, (req, res) => {
+  app.put('/api/casos/:id', verifyToken, (req, res) => {
     const id_caso = req.params.id;
     const { fecha, comuna, barrio, direccion, victimas, vehiculos_implicados, camaras_seguridad } = req.body;
 
@@ -477,7 +477,7 @@ const startServer = (db) => {
     });
   });
 
-  app.delete('/api/v1/casos/:id', verifyToken, (req, res) => {
+  app.delete('/api/casos/:id', verifyToken, (req, res) => {
     const id_caso = req.params.id;
 
     db.run("DELETE FROM casos WHERE id = ?", [id_caso], function(err) {
@@ -491,7 +491,7 @@ const startServer = (db) => {
     });
   });
 
-  app.get('/api/v1/statistics', verifyToken, (req, res) => {
+  app.get('/api/statistics', verifyToken, (req, res) => {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -533,7 +533,7 @@ const startServer = (db) => {
     });
   });
 
-  app.get('/api/v1/statistics/top', verifyToken, (req, res) => {
+  app.get('/api/statistics/top', verifyToken, (req, res) => {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -577,7 +577,7 @@ const startServer = (db) => {
     });
   });
 
-  app.get('/api/v1/statistics/top/vehiculos', verifyToken, (req, res) => {
+  app.get('/api/statistics/top/vehiculos', verifyToken, (req, res) => {
     const sql = "SELECT marca, COUNT(*) as count FROM vehiculos_hurtados GROUP BY marca ORDER BY count DESC LIMIT 3";
     db.all(sql, [], (err, rows) => {
       if (err) {
