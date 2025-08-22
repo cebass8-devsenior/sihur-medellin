@@ -47,10 +47,10 @@ function Dashboard({ userRole }) {
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const [statsResponse, topStatsResponse, topVehiculosResponse, casesResponse] = await Promise.all([
-        axios.get(`${API_URL}/api/v1/statistics`, { headers }),
-        axios.get(`${API_URL}/api/v1/statistics/top`, { headers }),
-        axios.get(`${API_URL}/api/v1/statistics/top/vehiculos`, { headers }),
-        axios.get(`${API_URL}/api/v1/casos/today`, { headers })
+        axios.get(`${API_URL}/api/statistics`, { headers }),
+        axios.get(`${API_URL}/api/statistics/top`, { headers }),
+        axios.get(`${API_URL}/api/statistics/top/vehiculos`, { headers }),
+        axios.get(`${API_URL}/api/casos/today`, { headers })
       ]);
       setStats(statsResponse.data);
       setTopStats(topStatsResponse.data);
@@ -85,7 +85,7 @@ function Dashboard({ userRole }) {
   const handleEdit = async (caseId) => {
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/api/v1/casos/${caseId}`, { headers });
+      const response = await axios.get(`${API_URL}/api/casos/${caseId}`, { headers });
       setEditingCase(response.data);
       setShowHurtoForm(false); // Hide the create form if it's open
       setShowChangePasswordForm(false); // Hide change password form
@@ -115,7 +115,7 @@ function Dashboard({ userRole }) {
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(`${API_URL}/api/v1/casos/search?${params.toString()}`, { headers });
+      const response = await axios.get(`${API_URL}/api/casos/search?${params.toString()}`, { headers });
       setSearchResults(response.data);
       if (response.data.length === 0) {
         setError('No se encontraron casos con los criterios de búsqueda.');
@@ -142,7 +142,7 @@ function Dashboard({ userRole }) {
     if (window.confirm('¿Está seguro de que desea eliminar este caso? Esta acción no se puede deshacer.')) {
       try {
         const headers = { Authorization: `Bearer ${token}` };
-        await axios.delete(`${API_URL}/api/v1/casos/${caseId}`, { headers });
+        await axios.delete(`${API_URL}/api/casos/${caseId}`, { headers });
         setTodayCases(todayCases.filter(c => c.id !== caseId));
         setSearchResults(searchResults.filter(c => c.id !== caseId));
       } catch (err) {
@@ -164,7 +164,7 @@ function Dashboard({ userRole }) {
 
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.post(`${API_URL}/api/v1/user/change-password`, {
+      const response = await axios.post(`${API_URL}/api/user/change-password`, {
         currentPassword,
         newPassword,
       }, { headers });
