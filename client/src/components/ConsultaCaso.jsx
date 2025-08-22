@@ -11,7 +11,7 @@ function ConsultaCaso({ token, caseId }) {
     const fetchCaseDetails = async () => {
       try {
         const headers = { Authorization: `Bearer ${token}` };
-        const response = await axios.get(`${API_URL}/api/v1/casos/${caseId}`, { headers });
+        const response = await axios.get(`${API_URL}/api/casos/${caseId}`, { headers });
         setCaseDetails(response.data);
       } catch (err) {
         setError('Error al cargar los detalles del caso. Por favor, intente de nuevo más tarde.');
