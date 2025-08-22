@@ -361,7 +361,8 @@ const startServer = (db) => {
   });
 
   app.get('/api/casos/search', async (req, res) => {
-    console.error(`[${new Date().toISOString()}] Received request for /api/casos/search with query:`, req.query);
+    process.stderr.write(`[${new Date().toISOString()}] Received request for /api/casos/search with query: ${JSON.stringify(req.query)}
+`);
     const { placa_hurtado, placa_implicado, nombre_victima, cedula_persona, nombre_persona } = req.query;
 
     let sql = `SELECT DISTINCT c.* FROM casos c`;
