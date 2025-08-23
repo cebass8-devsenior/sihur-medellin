@@ -37,6 +37,12 @@ const startServer = (db) => {
     res.status(200).send('API test OK');
   });
 
+  // Catch-all route for debugging
+  app.get('*', (req, res, next) => {
+    process.stderr.write(`[${new Date().toISOString()}] Catch-all route hit: ${req.method} ${req.path}\n`);
+    next();
+  });
+
   // Basic route
   app.get('/', (req, res) => {
     res.send('Hello from the SIHUR API!');
