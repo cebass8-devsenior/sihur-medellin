@@ -196,11 +196,11 @@ const startServer = (db) => {
   });
 
   app.post('/api/casos', verifyToken, (req, res) => {
-    const { fecha, comuna, barrio, direccion, victimas, vehiculos_implicados, camaras_seguridad } = req.body;
+    const { fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador, victimas, vehiculos_implicados, camaras_seguridad } = req.body;
     const codigo_caso = `CASO-${Date.now()}`;
 
-    const sql = 'INSERT INTO casos (codigo_caso, fecha, comuna, barrio, direccion) VALUES (?,?,?,?,?)';
-    db.run(sql, [codigo_caso, fecha, comuna, barrio, direccion], function(err) {
+    const sql = 'INSERT INTO casos (codigo_caso, fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador) VALUES (?,?,?,?,?,?,?,?)';
+    db.run(sql, [codigo_caso, fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador], function(err) {
       if (err) {
         return res.status(500).json({ message: 'Server error' });
       }
@@ -245,7 +245,7 @@ const startServer = (db) => {
         });
       }
 
-      res.status(201).json({ id: id_caso, codigo_caso, fecha, comuna, barrio, direccion });
+      res.status(201).json({ id: id_caso, codigo_caso, fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador });
     });
   });
 
@@ -424,13 +424,13 @@ const startServer = (db) => {
 
   app.put('/api/casos/:id', verifyToken, (req, res) => {
     const id_caso = req.params.id;
-    const { fecha, comuna, barrio, direccion, victimas, vehiculos_implicados, camaras_seguridad } = req.body;
+    const { fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador, victimas, vehiculos_implicados, camaras_seguridad } = req.body;
 
     db.serialize(() => {
       db.run('BEGIN TRANSACTION');
 
-      const sql_update_caso = `UPDATE casos SET fecha = ?, comuna = ?, barrio = ?, direccion = ? WHERE id = ?`;
-      db.run(sql_update_caso, [fecha, comuna, barrio, direccion, id_caso], function(err) {
+      const sql_update_caso = `UPDATE casos SET fecha = ?, comuna = ?, barrio = ?, direccion = ?, latitud = ?, longitud = ?, notas_investigador = ? WHERE id = ?`;
+      db.run(sql_update_caso, [fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador, id_caso], function(err) {
         if (err) {
           db.run('ROLLBACK');
           return res.status(500).json({ message: 'Error al actualizar el caso', error: err.message });

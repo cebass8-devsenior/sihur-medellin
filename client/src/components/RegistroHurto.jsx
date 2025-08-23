@@ -10,6 +10,7 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
     direccion: '',
     latitud: '',
     longitud: '',
+    notas_investigador: '',
   });
   const [victimas, setVictimas] = useState([]);
   const [vehiculosImplicados, setVehiculosImplicados] = useState([]);
@@ -51,7 +52,7 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
       const { victimas, vehiculos_implicados, camaras_seguridad, ...mainData } = caseToEdit;
       // Format date for datetime-local input
       const formattedDate = new Date(mainData.fecha).toISOString().slice(0, 16);
-      setFormData({ ...mainData, fecha: formattedDate });
+      setFormData({ ...mainData, fecha: formattedDate, notas_investigador: mainData.notas_investigador || '' });
       setVictimas(victimas || []);
       setVehiculosImplicados(vehiculos_implicados || []);
       setCamarasSeguridad(camaras_seguridad || []);
@@ -240,6 +241,7 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
           direccion: '',
           latitud: '',
           longitud: '',
+          notas_investigador: '',
         });
         setVictimas([]);
         setVehiculosImplicados([]);
@@ -396,6 +398,16 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
           </div>
         ))}
         <button type="button" onClick={handleAddCamara}>Adicionar Cámara</button>
+
+        {/* --- NOTAS INVESTIGADOR --- */}
+        <h4>Notas del Investigador</h4>
+        <textarea
+          name="notas_investigador"
+          value={formData.notas_investigador}
+          onChange={handleChange}
+          placeholder="Añada notas o detalles adicionales sobre el caso..."
+          style={{ width: '100%', height: '300px', marginTop: '10px' }}
+        />
 
         <div style={{ marginTop: '20px' }}>
           <button type="submit">{isEditMode ? 'Guardar Cambios' : 'Registrar Caso'}</button>

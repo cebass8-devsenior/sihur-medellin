@@ -32,6 +32,7 @@ const initializeDatabase = () => {
                     direccion TEXT,
                     latitud REAL,
                     longitud REAL,
+                    notas_investigador TEXT,
                     created_by INTEGER,
                     created_at TEXT,
                     updated_by INTEGER,
