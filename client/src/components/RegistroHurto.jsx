@@ -406,7 +406,7 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
           value={formData.notas_investigador}
           onChange={handleChange}
           placeholder="Añada notas o detalles adicionales sobre el caso..."
-          style={{ width: '100%', height: '300px', marginTop: '10px' }}
+          style={{ width: '100%', height: '80px', marginTop: '10px' }}
         />
 
         <div style={{ marginTop: '20px' }}>
