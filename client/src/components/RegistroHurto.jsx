@@ -102,7 +102,6 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
     }
   };
 
-  // All other handlers (handleVictimaChange, handleAddVehiculo, etc.) remain the same
   const handleAddVictima = () => {
     setVictimas([...victimas, {
       nombres_apellidos: '',
@@ -112,6 +111,10 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
       vehiculo_hurtado: false,
       vehiculos: [],
     }]);
+  };
+
+  const handleRemoveVictima = (index) => {
+    setVictimas(victimas.filter((_, i) => i !== index));
   };
 
   const handleVictimaChange = (index, e) => {
@@ -138,6 +141,12 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
     setVictimas(newVictimas);
   };
 
+  const handleRemoveVehiculo = (victimaIndex, vehiculoIndex) => {
+    const newVictimas = [...victimas];
+    newVictimas[victimaIndex].vehiculos = newVictimas[victimaIndex].vehiculos.filter((_, i) => i !== vehiculoIndex);
+    setVictimas(newVictimas);
+  };
+
   const handleVehiculoChange = (victimaIndex, vehiculoIndex, e) => {
     const newVictimas = [...victimas];
     newVictimas[victimaIndex].vehiculos[vehiculoIndex][e.target.name] = e.target.value;
@@ -161,6 +170,10 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
     }]);
   };
 
+  const handleRemoveVehiculoImplicado = (index) => {
+    setVehiculosImplicados(vehiculosImplicados.filter((_, i) => i !== index));
+  };
+
   const handleVehiculoImplicadoChange = (index, e) => {
     const newVehiculosImplicados = [...vehiculosImplicados];
     newVehiculosImplicados[index][e.target.name] = e.target.value;
@@ -176,6 +189,10 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
       observacion_general: '',
       observacion_detallada: '',
     }]);
+  };
+
+  const handleRemoveCamara = (index) => {
+    setCamarasSeguridad(camarasSeguridad.filter((_, i) => i !== index));
   };
 
   const handleCamaraChange = (index, e) => {
@@ -267,7 +284,10 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
         <h4>Víctimas</h4>
         {victimas.map((victima, victimaIndex) => (
           <div key={victimaIndex} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
-            <h5>Víctima {victimaIndex + 1}</h5>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <h5>Víctima {victimaIndex + 1}</h5>
+              <button type="button" onClick={() => handleRemoveVictima(victimaIndex)}>Quitar Víctima</button>
+            </div>
             <label>Nombres y Apellidos:</label>
             <input type="text" name="nombres_apellidos" value={victima.nombres_apellidos} onChange={(e) => handleVictimaChange(victimaIndex, e)} required />
             <label>Teléfono Móvil:</label>
@@ -286,6 +306,10 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
                 <h6>Datos del Vehículo Hurtado</h6>
                 {victima.vehiculos && victima.vehiculos.map((vehiculo, vehiculoIndex) => (
                   <div key={vehiculoIndex} style={{ border: '1px dashed #eee', padding: '10px', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <p>Vehículo {vehiculoIndex + 1}</p>
+                       <button type="button" onClick={() => handleRemoveVehiculo(victimaIndex, vehiculoIndex)}>Quitar Vehículo</button>
+                    </div>
                     <label>Clase de Vehículo:</label>
                     <input type="text" name="clase_vehiculo" value={vehiculo.clase_vehiculo} onChange={(e) => handleVehiculoChange(victimaIndex, vehiculoIndex, e)} required />
                     <label>Placa:</label>
@@ -311,7 +335,10 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
         <h4>Vehículo(s) Implicados en el Hurto</h4>
         {vehiculosImplicados.map((vehiculo, index) => (
           <div key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
-            <h5>Vehículo Implicado {index + 1}</h5>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <h5>Vehículo Implicado {index + 1}</h5>
+              <button type="button" onClick={() => handleRemoveVehiculoImplicado(index)}>Quitar Vehículo Implicado</button>
+            </div>
             <label>Placa:</label>
             <input type="text" name="placa" value={vehiculo.placa} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
             <label>Clase de Servicio:</label>
@@ -349,7 +376,10 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
         <h4>Trazabilidad de Cámaras de Seguridad</h4>
         {camarasSeguridad.map((camara, index) => (
           <div key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
-            <h5>Cámara {index + 1}</h5>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <h5>Cámara {index + 1}</h5>
+              <button type="button" onClick={() => handleRemoveCamara(index)}>Quitar Cámara</button>
+            </div>
             <label>Dirección y Número de Cámara:</label>
             <input type="text" name="direccion_numero_camara" value={camara.direccion_numero_camara} onChange={(e) => handleCamaraChange(index, e)} required />
             <label>Hora Video Inicio:</label>
