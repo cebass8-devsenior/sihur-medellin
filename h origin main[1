@@ -1,0 +1,21 @@
+[33m110d7aa[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m fix(frontend): remove /v1 prefix from api calls in Dashboard component
+[33me72e5c5[m fix(frontend): remove /v1 prefix from api calls in ConsultaCaso and RegistroHurto
+[33mffbfde7[m fix(api): remove /v1 prefix from all api routes
+[33m188778c[m fix: Update all API calls to use /api/v1
+[33mb6a3d2d[m refactor: Add /v1 to all API routes for debugging
+[33m439061d[m refactor: Move test endpoint to /test for debugging
+[33m8de1e1a[m feat: Add /api/test endpoint for debugging
+[33m1bee6f7[m fix: Temporarily remove auth from search endpoint for debugging
+[33m1a33f02[m feat: Add /health endpoint and more logging to debug Render deployment
+[33m78b1da6[m fix: Corrige el error 404 en la búsqueda de casos
+[33m76de09d[m fix: Set CORS origin to *
+[33md0e89de[m fix: Bind server to 0.0.0.0 and use Render port
+[33m16a81e0[m fix: Solucionar error de CORS y de inicialización de BD
+[33m78ab2af[m fix(auth): Desactivar reCAPTCHA para desarrollo local
+[33mb1b9684[m Feat: Mejorar la inicialización de la base de datos y la configuración de la API
+[33m6b3ee6b[m Feat: Use environment variable for reCAPTCHA site key
+[33m62e341a[m Feat: Use environment variable for API URL
+[33mc3834d6[m Fix: Complete and correct database schema initialization
+[33m9a1d37b[m Fix: Correct missing closing tags in ConsultaCaso.jsx
+[33m9252179[m Add vercel.json for SPA routing
+[33ma66772e[m Initial commit

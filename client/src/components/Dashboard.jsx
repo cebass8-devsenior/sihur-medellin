@@ -275,14 +275,30 @@ function Dashboard({ userRole }) {
         {searchResults.length > 0 && (
           <div>
             <h5>Resultados de la Búsqueda:</h5>
-            <ul>
-              {searchResults.map(caseItem => (
-                <li key={caseItem.id}>
-                  Caso ID: {caseItem.id} - Código: {caseItem.codigo_caso} - Dirección: {caseItem.direccion}
-                  <button onClick={() => setSelectedCaseId(caseItem.id)}>Ver Detalles</button>
-                </li>
-              ))}
-            </ul>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID Caso</th>
+                  <th>Código</th>
+                  <th>Dirección</th>
+                  {searchResults[0]?.criterio_busqueda && <th>Criterio de Búsqueda</th>}
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {searchResults.map(caseItem => (
+                  <tr key={caseItem.id}>
+                    <td>{caseItem.id}</td>
+                    <td>{caseItem.codigo_caso}</td>
+                    <td>{caseItem.direccion}</td>
+                    {caseItem.criterio_busqueda && <td>{caseItem.criterio_busqueda}</td>}
+                    <td>
+                      <button onClick={() => setSelectedCaseId(caseItem.id)}>Ver Detalles</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

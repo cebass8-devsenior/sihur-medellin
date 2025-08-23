@@ -37,12 +37,6 @@ const startServer = (db) => {
     res.status(200).send('API test OK');
   });
 
-  // Catch-all route for debugging
-  app.get('*', (req, res, next) => {
-    process.stderr.write(`[${new Date().toISOString()}] Catch-all route hit: ${req.method} ${req.path}\n`);
-    next();
-  });
-
   // Basic route
   app.get('/', (req, res) => {
     res.send('Hello from the SIHUR API!');
@@ -296,6 +290,68 @@ const startServer = (db) => {
     });
   });
 
+  app.get('/api/casos/search', verifyToken, async (req, res) => {
+    process.stderr.write(`[${new Date().toISOString()}] Received request for /api/casos/search with query: ${JSON.stringify(req.query)}
+`);
+    const { placa_hurtado, placa_implicado, nombre_victima, cedula_persona, nombre_persona } = req.query;
+
+    let criterioSelect = ''; // This will hold the column for the search criterion
+
+    const params = [];
+    const joins = [];
+    const conditions = [];
+
+    if (placa_hurtado) {
+      if (!criterioSelect) criterioSelect = ', vh.placa AS criterio_busqueda';
+      joins.push(`JOIN victimas v ON c.id = v.id_caso`);
+      joins.push(`JOIN vehiculos_hurtados vh ON v.id = vh.id_victima`);
+      conditions.push(`vh.placa LIKE ?`);
+      params.push(`%${placa_hurtado}%`);
+    }
+    if (placa_implicado) {
+      if (!criterioSelect) criterioSelect = ', vi.placa AS criterio_busqueda';
+      joins.push(`JOIN vehiculos_implicados vi ON c.id = vi.id_caso`);
+      conditions.push(`vi.placa LIKE ?`);
+      params.push(`%${placa_implicado}%`);
+    }
+    if (nombre_victima) {
+      if (!criterioSelect) criterioSelect = ', v2.nombres_apellidos AS criterio_busqueda';
+      joins.push(`JOIN victimas v2 ON c.id = v2.id_caso`);
+      conditions.push(`v2.nombres_apellidos LIKE ?`);
+      params.push(`%${nombre_victima}%`);
+    }
+    if (cedula_persona || nombre_persona) {
+      joins.push(`JOIN casos_personas_individualizadas cpi ON c.id = cpi.id_caso`);
+      joins.push(`JOIN personas_individualizadas pi ON cpi.id_persona_individualizada = pi.id`);
+      if (cedula_persona) {
+        if (!criterioSelect) criterioSelect = ', pi.cedula AS criterio_busqueda';
+        conditions.push(`pi.cedula LIKE ?`);
+        params.push(`%${cedula_persona}%`);
+      }
+      if (nombre_persona) {
+        if (!criterioSelect) criterioSelect = ', pi.nombres_apellidos AS criterio_busqueda';
+        conditions.push(`pi.nombres_apellidos LIKE ?`);
+        params.push(`%${nombre_persona}%`);
+      }
+    }
+
+    let sql = `SELECT DISTINCT c.*${criterioSelect} FROM casos c`;
+
+    if (joins.length > 0) {
+      sql += ` ${[...new Set(joins)].join(' ')}`;
+    }
+    if (conditions.length > 0) {
+      sql += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    db.all(sql, params, (err, rows) => {
+      if (err) {
+        return res.status(500).json({ message: 'Server error' });
+      }
+      res.json(rows);
+    });
+  });
+
   app.get('/api/casos/:id', verifyToken, async (req, res) => {
     const id_caso = req.params.id;
 
@@ -364,60 +420,6 @@ const startServer = (db) => {
     } catch (err) {
       res.status(500).json({ message: 'Error al obtener los detalles del caso', error: err.message });
     }
-  });
-
-  app.get('/api/casos/search', async (req, res) => {
-    process.stderr.write(`[${new Date().toISOString()}] Received request for /api/casos/search with query: ${JSON.stringify(req.query)}
-`);
-    const { placa_hurtado, placa_implicado, nombre_victima, cedula_persona, nombre_persona } = req.query;
-
-    let sql = `SELECT DISTINCT c.* FROM casos c`;
-    const params = [];
-    const joins = [];
-    const conditions = [];
-
-    if (placa_hurtado) {
-      joins.push(`JOIN victimas v ON c.id = v.id_caso`);
-      joins.push(`JOIN vehiculos_hurtados vh ON v.id = vh.id_victima`);
-      conditions.push(`vh.placa LIKE ?`);
-      params.push(`%${placa_hurtado}%`);
-    }
-    if (placa_implicado) {
-      joins.push(`JOIN vehiculos_implicados vi ON c.id = vi.id_caso`);
-      conditions.push(`vi.placa LIKE ?`);
-      params.push(`%${placa_implicado}%`);
-    }
-    if (nombre_victima) {
-      joins.push(`JOIN victimas v2 ON c.id = v2.id_caso`);
-      conditions.push(`v2.nombres_apellidos LIKE ?`);
-      params.push(`%${nombre_victima}%`);
-    }
-    if (cedula_persona || nombre_persona) {
-      joins.push(`JOIN casos_personas_individualizadas cpi ON c.id = cpi.id_caso`);
-      joins.push(`JOIN personas_individualizadas pi ON cpi.id_persona_individualizada = pi.id`);
-      if (cedula_persona) {
-        conditions.push(`pi.cedula LIKE ?`);
-        params.push(`%${cedula_persona}%`);
-      }
-      if (nombre_persona) {
-        conditions.push(`pi.nombres_apellidos LIKE ?`);
-        params.push(`%${nombre_persona}%`);
-      }
-    }
-
-    if (joins.length > 0) {
-      sql += ` ${[...new Set(joins)].join(' ')}`;
-    }
-    if (conditions.length > 0) {
-      sql += ` WHERE ${conditions.join(' AND ')}`;
-    }
-
-    db.all(sql, params, (err, rows) => {
-      if (err) {
-        return res.status(500).json({ message: 'Server error' });
-      }
-      res.json(rows);
-    });
   });
 
   app.put('/api/casos/:id', verifyToken, (req, res) => {
@@ -595,10 +597,13 @@ const startServer = (db) => {
     });
   });
 
-  // Catch-all route for debugging
-  app.get('*', (req, res, next) => {
-    process.stderr.write(`[${new Date().toISOString()}] Catch-all route hit: ${req.method} ${req.path}\n`);
-    next();
+  // All specific routes should be defined above this line.
+
+  // Catch-all route for any other request (404)
+  // This MUST be the last route defined.
+  app.get('*', (req, res) => {
+    console.log(`[${new Date().toISOString()}] Catch-all route hit: ${req.method} ${req.path}`);
+    res.status(404).send('Not Found');
   });
 
   // Start the server
