@@ -595,6 +595,12 @@ const startServer = (db) => {
     });
   });
 
+  // Catch-all route for debugging
+  app.get('*', (req, res, next) => {
+    process.stderr.write(`[${new Date().toISOString()}] Catch-all route hit: ${req.method} ${req.path}\n`);
+    next();
+  });
+
   // Start the server
   const PORT = process.env.PORT || port;
   app.listen(PORT, '0.0.0.0', () => {
