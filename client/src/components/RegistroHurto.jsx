@@ -274,10 +274,122 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
         <label>Longitud:</label>
         <input type="text" name="longitud" value={formData.longitud} readOnly />
 
-        {/* --- VICTIMAS, VEHICULOS, CAMARAS sections are unchanged --- */}
-        {/* ... existing JSX for victimas ... */}
-        {/* ... existing JSX for vehiculosImplicados ... */}
-        {/* ... existing JSX for camarasSeguridad ... */}
+        {/* --- VICTIMAS --- */}
+        <h4>Víctimas</h4>
+        {victimas.map((victima, victimaIndex) => (
+          <div key={victimaIndex} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <h5>Víctima {victimaIndex + 1}</h5>
+              <button type="button" onClick={() => handleRemoveVictima(victimaIndex)}>Quitar Víctima</button>
+            </div>
+            <label>Nombres y Apellidos:</label>
+            <input type="text" name="nombres_apellidos" value={victima.nombres_apellidos} onChange={(e) => handleVictimaChange(victimaIndex, e)} required />
+            <label>Teléfono Móvil:</label>
+            <input type="number" name="telefono_movil" value={victima.telefono_movil} onChange={(e) => handleVictimaChange(victimaIndex, e)} required minLength="10" />
+            <label>Nacionalidad:</label>
+            <input type="text" name="nacionalidad" value={victima.nacionalidad} onChange={(e) => handleVictimaChange(victimaIndex, e)} required />
+            <label>Elementos Hurtados:</label>
+            <input type="text" name="elementos_hurtados" value={victima.elementos_hurtados} onChange={(e) => handleVictimaChange(victimaIndex, e)} required />
+            <label>
+              <input type="checkbox" name="vehiculo_hurtado" checked={victima.vehiculo_hurtado} onChange={(e) => handleVictimaChange(victimaIndex, e)} />
+              ¿Vehículo hurtado?
+            </label>
+
+            {victima.vehiculo_hurtado && (
+              <div>
+                <h6>Datos del Vehículo Hurtado</h6>
+                {victima.vehiculos && victima.vehiculos.map((vehiculo, vehiculoIndex) => (
+                  <div key={vehiculoIndex} style={{ border: '1px dashed #eee', padding: '10px', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                       <p>Vehículo {vehiculoIndex + 1}</p>
+                       <button type="button" onClick={() => handleRemoveVehiculo(victimaIndex, vehiculoIndex)}>Quitar Vehículo</button>
+                    </div>
+                    <label>Clase de Vehículo:</label>
+                    <input type="text" name="clase_vehiculo" value={vehiculo.clase_vehiculo} onChange={(e) => handleVehiculoChange(victimaIndex, vehiculoIndex, e)} required />
+                    <label>Placa:</label>
+                    <input type="text" name="placa" value={vehiculo.placa} onChange={(e) => handleVehiculoChange(victimaIndex, vehiculoIndex, e)} required />
+                    <label>Tipo de Servicio:</label>
+                    <select name="tipo_servicio" value={vehiculo.tipo_servicio} onChange={(e) => handleVehiculoChange(victimaIndex, vehiculoIndex, e)} required>
+                      <option value="">Seleccione</option>
+                      <option value="Público">Público</option>
+                      <option value="Particular">Particular</option>
+                    </select>
+                    <label>Marca:</label>
+                    <input type="text" name="marca" value={vehiculo.marca} onChange={(e) => handleVehiculoChange(victimaIndex, vehiculoIndex, e)} required />
+                  </div>
+                ))}
+                <button type="button" onClick={() => handleAddVehiculo(victimaIndex)}>Adicionar Vehículo</button>
+              </div>
+            )}
+          </div>
+        ))}
+        <button type="button" onClick={handleAddVictima}>Adicionar Víctima</button>
+
+        {/* --- VEHICULOS IMPLICADOS --- */}
+        <h4>Vehículo(s) Implicados en el Hurto</h4>
+        {vehiculosImplicados.map((vehiculo, index) => (
+          <div key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <h5>Vehículo Implicado {index + 1}</h5>
+              <button type="button" onClick={() => handleRemoveVehiculoImplicado(index)}>Quitar Vehículo Implicado</button>
+            </div>
+            <label>Placa:</label>
+            <input type="text" name="placa" value={vehiculo.placa} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Clase de Servicio:</label>
+            <select name="clase_servicio" value={vehiculo.clase_servicio} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required>
+              <option value="">Seleccione</option>
+              <option value="Público">Público</option>
+              <option value="Particular">Particular</option>
+            </select>
+            <label>Clase de Vehículo:</label>
+            <input type="text" name="clase_vehiculo" value={vehiculo.clase_vehiculo} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Organismo de Tránsito:</label>
+            <input type="text" name="organismo_transito" value={vehiculo.organismo_transito} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Marca y Color:</label>
+            <input type="text" name="marca_color" value={vehiculo.marca_color} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Capacidad de Pasajeros:</label>
+            <input type="number" name="capacidad_pasajeros" value={vehiculo.capacidad_pasajeros} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Carrocería:</label>
+            <input type="text" name="carroceria" value={vehiculo.carroceria} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <h6>Datos del Propietario (RUNT)</h6>
+            <label>Tipo y Número de Identificación:</label>
+            <input type="text" name="tipo_numero_identificacion" value={vehiculo.tipo_numero_identificacion} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Nombres y Apellidos Propietario:</label>
+            <input type="text" name="nombres_apellidos_propietario" value={vehiculo.nombres_apellidos_propietario} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Dirección Propietario:</label>
+            <input type="text" name="direccion_propietario" value={vehiculo.direccion_propietario} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Teléfono Propietario:</label>
+            <input type="text" name="telefono_propietario" value={vehiculo.telefono_propietario} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+            <label>Celular Propietario:</label>
+            <input type="text" name="celular_propietario" value={vehiculo.celular_propietario} onChange={(e) => handleVehiculoImplicadoChange(index, e)} required />
+          </div>
+        ))}
+        <button type="button" onClick={handleAddVehiculoImplicado}>Adicionar Vehículo Implicado</button>
+
+        {/* --- CAMARAS --- */}
+        <h4>Trazabilidad de Cámaras de Seguridad</h4>
+        {camarasSeguridad.map((camara, index) => (
+          <div key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <h5>Cámara {index + 1}</h5>
+              <button type="button" onClick={() => handleRemoveCamara(index)}>Quitar Cámara</button>
+            </div>
+            <label>Dirección y Número de Cámara:</label>
+            <input type="text" name="direccion_numero_camara" value={camara.direccion_numero_camara} onChange={(e) => handleCamaraChange(index, e)} required />
+            <label>Hora Video Inicio:</label>
+            <input type="time" name="hora_video_inicio" value={camara.hora_video_inicio} onChange={(e) => handleCamaraChange(index, e)} required />
+            <label>Hora Video Final:</label>
+            <input type="time" name="hora_video_final" value={camara.hora_video_final} onChange={(e) => handleCamaraChange(index, e)} required />
+            <label>Fotografía:</label>
+            <input type="file" name="fotografia" accept="image/jpeg,image/png" onChange={(e) => handleCamaraChange(index, e)} />
+            {camara.fotografia && <img src={camara.fotografia} alt="Preview" style={{ maxWidth: '100px', maxHeight: '100px' }} />}
+            <label>Observación General:</label>
+            <input type="text" name="observacion_general" value={camara.observacion_general} onChange={(e) => handleCamaraChange(index, e)} />
+            <label>Observación Detallada:</label>
+            <textarea name="observacion_detallada" value={camara.observacion_detallada} onChange={(e) => handleCamaraChange(index, e)}></textarea>
+          </div>
+        ))}
+        <button type="button" onClick={handleAddCamara}>Adicionar Cámara</button>
 
         {/* --- NOTAS INVESTIGADOR --- */}
         <h4>Notas del Investigador</h4>
