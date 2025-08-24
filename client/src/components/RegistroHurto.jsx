@@ -15,11 +15,16 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
   // State for dynamic dropdowns
   const [comunas, setComunas] = useState([]);
   const [barrios, setBarrios] = useState([]);
+  const [nacionalidades, setNacionalidades] = useState([]);
   const [selectedComunaId, setSelectedComunaId] = useState('');
 
   // State for adding a new barrio
   const [showAddBarrio, setShowAddBarrio] = useState(false);
   const [newBarrioName, setNewBarrioName] = useState('');
+
+  // State for adding a new nacionalidad
+  const [showAddNacionalidad, setShowAddNacionalidad] = useState(false);
+  const [newNacionalidadName, setNewNacionalidadName] = useState('');
 
   const [victimas, setVictimas] = useState([]);
   const [vehiculosImplicados, setVehiculosImplicados] = useState([]);
@@ -44,7 +49,20 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
       }
     };
     fetchComunas();
+    fetchNacionalidades();
   }, [token, API_URL]);
+
+  // Fetch nacionalidades on component mount
+  const fetchNacionalidades = async () => {
+    if (!token) return;
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(`${API_URL}/api/nacionalidades`, { headers });
+      setNacionalidades(response.data);
+    } catch (err) {
+      setError('Error al cargar las nacionalidades.');
+    }
+  };
 
   // Effect to populate form when in edit mode
   useEffect(() => {
@@ -326,7 +344,28 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
             <label>Teléfono Móvil:</label>
             <input type="number" name="telefono_movil" value={victima.telefono_movil} onChange={(e) => handleVictimaChange(victimaIndex, e)} required minLength="10" />
             <label>Nacionalidad:</label>
-            <input type="text" name="nacionalidad" value={victima.nacionalidad} onChange={(e) => handleVictimaChange(victimaIndex, e)} required />
+            <select name="nacionalidad" value={victima.nacionalidad} onChange={(e) => handleVictimaChange(victimaIndex, e)} required>
+              <option value="">Seleccione una Nacionalidad</option>
+              {nacionalidades.map(n => (
+                <option key={n.id} value={n.nombre}>{n.nombre}</option>
+              ))}
+            </select>
+            <div style={{margin: '10px 0'}}>
+                <button type="button" onClick={() => setShowAddNacionalidad(!showAddNacionalidad)}>
+                    {showAddNacionalidad ? 'Cancelar' : 'Añadir nueva nacionalidad...'}
+                </button>
+                {showAddNacionalidad && (
+                    <div style={{marginTop: '5px'}}>
+                        <input 
+                            type="text" 
+                            value={newNacionalidadName} 
+                            onChange={(e) => setNewNacionalidadName(e.target.value)} 
+                            placeholder="Nombre de la nueva nacionalidad"
+                        />
+                        <button type="button" onClick={handleSaveNewNacionalidad}>Guardar Nacionalidad</button>
+                    </div>
+                )}
+            </div>
             <label>Elementos Hurtados:</label>
             <input type="text" name="elementos_hurtados" value={victima.elementos_hurtados} onChange={(e) => handleVictimaChange(victimaIndex, e)} required />
             <label>
