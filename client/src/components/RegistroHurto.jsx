@@ -133,6 +133,24 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
     }
   };
 
+  const handleSaveNewNacionalidad = async () => {
+    if (!newNacionalidadName.trim()) {
+      setError('El nombre de la nueva nacionalidad no puede estar vacío.');
+      return;
+    }
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.post(`${API_URL}/api/nacionalidades`, { nombre: newNacionalidadName }, { headers });
+      const newNacionalidad = response.data;
+      setNacionalidades(prevNacionalidades => [...prevNacionalidades, newNacionalidad].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+      setNewNacionalidadName('');
+      setShowAddNacionalidad(false);
+      setError('');
+    } catch (err) {
+      setError('Error al guardar la nueva nacionalidad.');
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevData => ({

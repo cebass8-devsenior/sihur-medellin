@@ -538,6 +538,30 @@ const startServer = (db) => {
     });
   });
 
+  // Endpoints for Nacionalidades
+  app.get('/api/nacionalidades', verifyToken, (req, res) => {
+    db.all("SELECT * FROM nacionalidades ORDER BY nombre", [], (err, rows) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error al obtener nacionalidades', error: err.message });
+      }
+      res.json(rows);
+    });
+  });
+
+  app.post('/api/nacionalidades', verifyToken, (req, res) => {
+    const { nombre } = req.body;
+    if (!nombre) {
+      return res.status(400).json({ message: 'El nombre es requerido' });
+    }
+    const sql = 'INSERT INTO nacionalidades (nombre) VALUES (?)';
+    db.run(sql, [nombre], function(err) {
+      if (err) {
+        return res.status(500).json({ message: 'Error al crear la nacionalidad', error: err.message });
+      }
+      res.status(201).json({ id: this.lastID, nombre });
+    });
+  });
+
   app.get('/api/statistics', verifyToken, (req, res) => {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
