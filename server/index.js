@@ -660,15 +660,6 @@ const startServer = (db) => {
     });
   });
 
-  // All specific routes should be defined above this line.
-
-  // Catch-all route for any other request (404)
-  // This MUST be the last route defined.
-  app.get('*', (req, res) => {
-    console.log(`[${new Date().toISOString()}] Catch-all route hit: ${req.method} ${req.path}`);
-    res.status(404).send('Not Found');
-  });
-
   // Start the server
   const PORT = process.env.PORT || port;
   app.listen(PORT, '0.0.0.0', () => {
