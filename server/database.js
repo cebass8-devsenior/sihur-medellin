@@ -80,7 +80,48 @@ const seedNacionalidades = (db) => {
 };
 
 const seedComunasAndBarrios = (db) => {
-    // ... (existing function)
+  const comunasConBarrios = [
+    { id: 1, nombre: "Comuna 1 - Popular", barrios: ["Popular", "Santo Domingo Savio", "Granizal", "Moscú N°1", "La Salle", "San Pablo"] },
+    { id: 2, nombre: "Comuna 2 - Santa Cruz", barrios: ["Santa Cruz", "La Isla", "Villa del Socorro", "La Frontera", "La Salle", "El Playón de los Comuneros"] },
+    // ... Agrega aquí el resto de tus comunas y barrios
+  ];
+
+  db.get('SELECT COUNT(*) as count FROM comunas', (err, row) => {
+    if (err) {
+      console.error("Error checking comunas count:", err.message);
+      return;
+    }
+    if (row.count === 0) {
+      console.log('Seeding comunas and barrios...');
+      
+      const insertComuna = db.prepare('INSERT INTO comunas (id, nombre) VALUES (?, ?)');
+      const insertBarrio = db.prepare('INSERT INTO barrios (nombre, id_comuna) VALUES (?, ?)');
+
+      db.serialize(() => {
+        comunasConBarrios.forEach(comuna => {
+          insertComuna.run(comuna.id, comuna.nombre, (err) => {
+            if (err) {
+              console.error(`Error inserting comuna ${comuna.nombre}:`, err.message);
+            } else {
+              comuna.barrios.forEach(barrio => {
+                insertBarrio.run(barrio, comuna.id, (err) => {
+                  if (err) console.error(`Error inserting barrio ${barrio}:`, err.message);
+                });
+              });
+            }
+          });
+        });
+
+        insertComuna.finalize(err => {
+          if (err) console.error("Error finalizing comuna insert:", err.message);
+        });
+        insertBarrio.finalize(err => {
+          if (err) console.error("Error finalizing barrio insert:", err.message);
+          else console.log("Finished seeding comunas and barrios.");
+        });
+      });
+    }
+  });
 };
 
 module.exports = { initializeDatabase };
