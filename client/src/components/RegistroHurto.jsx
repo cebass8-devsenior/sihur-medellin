@@ -200,18 +200,39 @@ function RegistroHurto({ token, onCaseAdded, onCaseUpdated, caseToEdit, onCancel
     e.preventDefault();
     setError('');
     setSuccess('');
-    const payload = { ...formData, victimas, vehiculos_implicados: vehiculosImplicados, camaras_seguridad: camarasSeguridad };
+
+    // Convert date to UTC ISO string before sending
+    const payload = { 
+      ...formData, 
+      fecha: new Date(formData.fecha).toISOString(),
+      victimas, 
+      vehiculos_implicados: vehiculosImplicados, 
+      camaras_seguridad: camarasSeguridad 
+    };
+
     const headers = { Authorization: `Bearer ${token}` };
+
     try {
       if (isEditMode) {
+        // Update existing case
         await axios.put(`${API_URL}/api/casos/${caseToEdit.id}`, payload, { headers });
         setSuccess('Caso actualizado exitosamente.');
         if (onCaseUpdated) onCaseUpdated({ ...caseToEdit, ...payload });
       } else {
+        // Create new case
         const response = await axios.post(`${API_URL}/api/casos`, payload, { headers });
         setSuccess('Caso registrado exitosamente.');
         if (onCaseAdded) onCaseAdded(response.data);
-        setFormData({ fecha: '', comuna: '', barrio: '', direccion: '', latitud: '', longitud: '', notas_investigador: '' });
+        // Clear form only on successful creation
+        setFormData({
+          fecha: '',
+          comuna: '',
+          barrio: '',
+          direccion: '',
+          latitud: '',
+          longitud: '',
+          notas_investigador: '',
+        });
         setVictimas([]);
         setVehiculosImplicados([]);
         setCamarasSeguridad([]);

@@ -196,21 +196,24 @@ const startServer = (db) => {
   });
 
   app.post('/api/casos', verifyToken, (req, res) => {
+    console.log("DEBUG: Received request to create case with body:", JSON.stringify(req.body, null, 2));
     const { fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador, victimas, vehiculos_implicados, camaras_seguridad } = req.body;
     const codigo_caso = `CASO-${Date.now()}`;
 
     const sql = 'INSERT INTO casos (codigo_caso, fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador) VALUES (?,?,?,?,?,?,?,?)';
     db.run(sql, [codigo_caso, fecha, comuna, barrio, direccion, latitud, longitud, notas_investigador], function(err) {
       if (err) {
+        console.error("DEBUG: Database error while inserting case:", err.message);
         return res.status(500).json({ message: 'Server error' });
       }
+      console.log(`DEBUG: Case created successfully with ID: ${this.lastID}`);
       const id_caso = this.lastID;
       if (victimas && victimas.length > 0) {
         const sql_victimas = 'INSERT INTO victimas (id_caso, nombres_apellidos, telefono_movil, nacionalidad, elementos_hurtados, vehiculo_hurtado) VALUES (?,?,?,?,?,?)';
         victimas.forEach(v => {
           db.run(sql_victimas, [id_caso, v.nombres_apellidos, v.telefono_movil, v.nacionalidad, v.elementos_hurtados, v.vehiculo_hurtado], function(err) {
             if (err) {
-              console.error("Error inserting victim:", err);
+              console.error("DEBUG: Error inserting victim:", err);
               return;
             }
             const id_victima = this.lastID;
