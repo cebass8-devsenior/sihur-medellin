@@ -501,6 +501,40 @@ const startServer = (db) => {
     });
   });
 
+  // Endpoints for Comunas and Barrios
+  app.get('/api/comunas', verifyToken, (req, res) => {
+    db.all("SELECT * FROM comunas ORDER BY nombre", [], (err, rows) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error al obtener comunas', error: err.message });
+      }
+      res.json(rows);
+    });
+  });
+
+  app.get('/api/comunas/:id/barrios', verifyToken, (req, res) => {
+    const id_comuna = req.params.id;
+    db.all("SELECT * FROM barrios WHERE id_comuna = ? ORDER BY nombre", [id_comuna], (err, rows) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error al obtener barrios', error: err.message });
+      }
+      res.json(rows);
+    });
+  });
+
+  app.post('/api/barrios', verifyToken, (req, res) => {
+    const { nombre, id_comuna } = req.body;
+    if (!nombre || !id_comuna) {
+      return res.status(400).json({ message: 'El nombre y el id_comuna son requeridos' });
+    }
+    const sql = 'INSERT INTO barrios (nombre, id_comuna) VALUES (?, ?)';
+    db.run(sql, [nombre, id_comuna], function(err) {
+      if (err) {
+        return res.status(500).json({ message: 'Error al crear el barrio', error: err.message });
+      }
+      res.status(201).json({ id: this.lastID, nombre, id_comuna });
+    });
+  });
+
   app.get('/api/statistics', verifyToken, (req, res) => {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
