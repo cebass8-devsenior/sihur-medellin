@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
 const crypto = require('crypto'); // Import crypto for token generation
+const path = require('path');
 const { initializeDatabase } = require('./database.js');
 
 const app = express();
@@ -11,7 +12,7 @@ const port = 3001;
 
 // Middleware
 const corsOptions = {
-  origin: '*',
+  origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -21,6 +22,9 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Secret keys - IMPORTANT: Use environment variables in production
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
@@ -658,6 +662,11 @@ const startServer = (db) => {
       }
       res.json(rows);
     });
+  });
+
+  // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 
   // Start the server
