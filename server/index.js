@@ -28,6 +28,7 @@ const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || 'YOUR_SECRET_KE
 
 // This function will set up all routes and start the server
 const startServer = (db) => {
+  console.log('Starting server with new logging...');
   // Health check endpoint
   app.get('/health', (req, res) => {
     res.status(200).send('OK');
@@ -549,6 +550,7 @@ const startServer = (db) => {
   });
 
   app.post('/api/nacionalidades', verifyToken, (req, res) => {
+    console.log('Reached POST /api/nacionalidades endpoint');
     const { nombre } = req.body;
     if (!nombre) {
       return res.status(400).json({ message: 'El nombre es requerido' });
