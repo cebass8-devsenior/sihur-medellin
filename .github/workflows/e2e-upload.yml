@@ -38,7 +38,7 @@ jobs:
           # create a minimal .env for the backend if not present
           cat > .env <<EOF
           DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public
-          JWT_SECRET=ci-secret
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
           EOF
           docker compose -f docker-compose.yml up -d --build db backend
 
