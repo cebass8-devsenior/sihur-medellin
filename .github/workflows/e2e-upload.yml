@@ -18,26 +18,45 @@ jobs:
         with:
           node-version: 18
 
-      - name: Build and start backend + db with Docker Compose
+      - name: Build and start backend + db (docker build + run)
         run: |
-          # find the docker-compose file in the repo (support different layouts)
           set -euo pipefail
+          set -x
           echo "repo root: $(pwd)"
-          echo "listing top-level files:"; ls -la
           COMPOSE_FILE=$(find . -maxdepth 3 -type f -name 'docker-compose.yml' | head -n 1 || true)
           if [ -z "$COMPOSE_FILE" ]; then
             echo "ERROR: docker-compose.yml not found in repo (searched maxdepth 3)" >&2
-            echo "You can inspect the repository tree with: find . -maxdepth 4 -print" >&2
             exit 1
           fi
-          echo "Using compose file: $COMPOSE_FILE"
           COMPOSE_DIR=$(dirname "$COMPOSE_FILE")
+          echo "compose dir: $COMPOSE_DIR"
           echo "Creating .env in $COMPOSE_DIR"
-          cat > "$COMPOSE_DIR/.env" <<'EOF'
-DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public
-JWT_SECRET=${{ secrets.JWT_SECRET }}
-EOF
-          docker compose -f "$COMPOSE_FILE" up -d --build db backend
+          echo "DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public" > "$COMPOSE_DIR/.env"
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> "$COMPOSE_DIR/.env"
+
+          # Build backend image with plain logs
+          if [ -d "$COMPOSE_DIR/backend" ]; then
+            echo "Building backend image from $COMPOSE_DIR/backend"
+            DOCKER_BUILDKIT=1 docker build --progress=plain -t sihur-backend-ci "$COMPOSE_DIR/backend"
+          else
+            echo "ERROR: backend context not found at $COMPOSE_DIR/backend" >&2
+            exit 1
+          fi
+
+          # Create network
+          docker network create sihur_e2e_net || true
+
+          # Start Postgres container (name 'db' so backend env resolves it)
+          docker run -d --name db --network sihur_e2e_net -e POSTGRES_USER=sihur -e POSTGRES_PASSWORD=sihurpassword -e POSTGRES_DB=sihurdb -p 5432:5432 postgres:15
+
+          # Wait for Postgres
+          for i in {1..30}; do
+            if docker exec db pg_isready -U sihur -d sihurdb >/dev/null 2>&1; then echo "db ready" && break; fi
+            echo "waiting for db..."; sleep 2
+          done
+
+          # Run backend
+          docker run -d --name sihur_backend --network sihur_e2e_net -e DATABASE_URL="postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public" -e JWT_SECRET="${{ secrets.JWT_SECRET }}" -p 3001:3001 sihur-backend-ci
 
       - name: Wait for backend
         run: |
@@ -57,9 +76,10 @@ EOF
       - name: Tear down
         if: always()
         run: |
-          COMPOSE_FILE=$(find . -maxdepth 3 -type f -name 'docker-compose.yml' | head -n 1 || true)
-          if [ -n "$COMPOSE_FILE" ]; then
-            docker compose -f "$COMPOSE_FILE" down -v || true
-          else
-            echo "no compose file found during teardown"
-          fi
+          set -x
+          docker ps -a || true
+          docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | head -n 20 || true
+          docker rm -f sihur_backend db || true
+          docker network rm sihur_e2e_net || true
+          # remove the built image
+          docker rmi sihur-backend-ci || true
