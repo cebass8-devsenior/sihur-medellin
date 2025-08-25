@@ -1,4 +1,4 @@
-name: CI - E2E Upload
+﻿name: CI - E2E Upload
 
 on:
   workflow_dispatch:
@@ -27,12 +27,14 @@ jobs:
           echo "after force checkout:"; ls -la
 
       - name: Start Postgres and run local server
+        env:
+          DATABASE_URL: postgresql://sihur:sihurpassword@localhost:5432/sihurdb
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           set -euo pipefail
           set -x
           # Start Postgres
           docker run -d --name db -e POSTGRES_USER=sihur -e POSTGRES_PASSWORD=sihurpassword -e POSTGRES_DB=sihurdb -p 5432:5432 postgres:15
-
           # Wait for Postgres to be ready
           for i in {1..30}; do
             docker logs db || true
@@ -40,14 +42,15 @@ jobs:
             echo "waiting for db..."; sleep 2
           done
 
-          # Install and run the repository server in background
+          # Install and run the repository server in background (ensure env passed inline to the background process)
           if [ -d server ]; then
             pushd server
             npm ci
-            # Pass envs
-            export DATABASE_URL="postgresql://sihur:sihurpassword@localhost:5432/sihurdb?schema=public"
-            export JWT_SECRET="${{ secrets.JWT_SECRET }}"
-            nohup npm start &
+            # debug: confirm DATABASE_URL is present (will be redacted in logs if it contains secrets)
+            env | grep DATABASE_URL || true
+            env | grep JWT_SECRET || true
+            # start server with env in the same command so it inherits to the backgrounded process
+            DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" nohup npm start &
             popd
           else
             echo "server folder not found; cannot start local server" >&2
@@ -57,7 +60,7 @@ jobs:
       - name: Wait for backend
         run: |
           for i in {1..30}; do
-            if curl -sSf http://localhost:3001/api/health >/dev/null; then echo "backend up" && break; fi
+            if curl -sSf http://localhost:3001/health >/dev/null; then echo "backend up" && break; fi
             echo "waiting..."; sleep 3;
           done
 
