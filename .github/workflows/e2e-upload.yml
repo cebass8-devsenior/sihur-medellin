@@ -48,11 +48,12 @@ jobs:
           if [ -d server ]; then
             pushd server
             npm ci
-            # start server with explicit DATABASE_URL and the secret-expanded JWT_SECRET
-            bash -lc 'DATABASE_URL="postgresql://sihur:sihurpassword@localhost:5432/sihurdb" JWT_SECRET="$JWT_SECRET" node index.js > server.log 2>&1 & echo $! > /tmp/server.pid'
+            # start server via wrapper script (exports DATABASE_URL and uses JWT_SECRET from env)
+            chmod +x ../server/start-ci.sh || true
+            ../server/start-ci.sh
             # short pause then show initial server log for debugging
             sleep 1
-            tail -n +1 server.log || true
+            tail -n +1 server/server.log || true
             popd
           else
             echo "server folder not found; cannot start local server" >&2
