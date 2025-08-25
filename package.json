@@ -4,9 +4,17 @@
   "description": "SIHUR Monorepo",
   "main": "server/index.js",
   "scripts": {
-    "start": "npm start --prefix server",
-    "heroku-postbuild": "npm install --prefix server && npm install --prefix client && npm run build --prefix client"
+  "start": "npm start --prefix server",
+  "heroku-postbuild": "npm install --prefix server && npm install --prefix client && npm run build --prefix client",
+  "clean": "rimraf frontend/.next backend/uploads scripts/tmp.png backend/prisma/migrations"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "form-data": "^4.0.4"
+  }
+  ,
+  "devDependencies": {
+    "rimraf": "^5.0.0"
+  }
 }
