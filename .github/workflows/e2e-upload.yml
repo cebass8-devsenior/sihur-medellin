@@ -31,12 +31,24 @@ jobs:
 
       - name: Build and start backend + db with Docker Compose
         run: |
-          # create a minimal .env for the backend if not present
-          cat > sihur-v2/.env <<EOF
-          DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          EOF
-          docker compose -f sihur-v2/docker-compose.yml up -d --build db backend
+          # find the docker-compose file in the repo (support different layouts)
+          set -euo pipefail
+          echo "repo root: $(pwd)"
+          echo "listing top-level files:"; ls -la
+          COMPOSE_FILE=$(find . -maxdepth 3 -type f -name 'docker-compose.yml' | head -n 1 || true)
+          if [ -z "$COMPOSE_FILE" ]; then
+            echo "ERROR: docker-compose.yml not found in repo (searched maxdepth 3)" >&2
+            echo "You can inspect the repository tree with: find . -maxdepth 4 -print" >&2
+            exit 1
+          fi
+          echo "Using compose file: $COMPOSE_FILE"
+          COMPOSE_DIR=$(dirname "$COMPOSE_FILE")
+          echo "Creating .env in $COMPOSE_DIR"
+          cat > "$COMPOSE_DIR/.env" <<'EOF'
+DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public
+JWT_SECRET=${{ secrets.JWT_SECRET }}
+EOF
+          docker compose -f "$COMPOSE_FILE" up -d --build db backend
 
       - name: Wait for backend
         run: |
@@ -56,4 +68,9 @@ jobs:
       - name: Tear down
         if: always()
         run: |
-          docker compose -f sihur-v2/docker-compose.yml down -v || true
+          COMPOSE_FILE=$(find . -maxdepth 3 -type f -name 'docker-compose.yml' | head -n 1 || true)
+          if [ -n "$COMPOSE_FILE" ]; then
+            docker compose -f "$COMPOSE_FILE" down -v || true
+          else
+            echo "no compose file found during teardown"
+          fi
