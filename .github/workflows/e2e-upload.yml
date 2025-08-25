@@ -1,0 +1,63 @@
+name: CI - E2E Upload
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e-upload:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: sihur
+          POSTGRES_PASSWORD: sihurpassword
+          POSTGRES_DB: sihurdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sihur -d sihurdb" --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Docker Compose plugin if missing
+        run: |
+          docker compose version || sudo apt-get update -qq && sudo apt-get install -y docker-compose-plugin
+
+      - name: Build and start backend + db with Docker Compose
+        working-directory: ./sihur-v2
+        run: |
+          # create a minimal .env for the backend if not present
+          cat > .env <<EOF
+          DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public
+          JWT_SECRET=ci-secret
+          EOF
+          docker compose -f docker-compose.yml up -d --build db backend
+
+      - name: Wait for backend
+        run: |
+          for i in {1..30}; do
+            if curl -sSf http://localhost:3001/api/health >/dev/null; then echo "backend up" && break; fi
+            echo "waiting..."; sleep 3;
+          done
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Run E2E upload test
+        env:
+          CI: true
+        run: npm run sihur:e2e-upload
+
+      - name: Tear down
+        if: always()
+        working-directory: ./sihur-v2
+        run: docker compose -f docker-compose.yml down -v
