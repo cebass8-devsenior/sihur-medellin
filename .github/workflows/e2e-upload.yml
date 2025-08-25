@@ -26,57 +26,33 @@ jobs:
           git reset --hard origin/main
           echo "after force checkout:"; ls -la
 
-      - name: Build and start backend + db (docker build + run)
+      - name: Start Postgres and run local server
         run: |
           set -euo pipefail
           set -x
-          echo "repo root: $(pwd)"
-          echo "Listing repository top-level:"; ls -la || true
-          echo "Looking for sihur-v2/docker-compose.yml first"
-          if [ -f "./sihur-v2/docker-compose.yml" ]; then
-            COMPOSE_FILE="./sihur-v2/docker-compose.yml"
-          else
-            echo "fallback: find anywhere in repo"
-            COMPOSE_FILE=$(find . -type f -name 'docker-compose.yml' | head -n 1 || true)
-            if [ -z "$COMPOSE_FILE" ]; then
-              echo "fallback: try git ls-files"
-              COMPOSE_FILE=$(git ls-files | grep -E '(^|/)docker-compose.yml$' | head -n1 || true)
-            fi
-          fi
-          if [ -z "$COMPOSE_FILE" ]; then
-            echo "ERROR: docker-compose.yml not found in repo" >&2
-            echo "You can inspect the repository tree with: ls -la && find . -maxdepth 3 -print" >&2
-            exit 1
-          fi
-          COMPOSE_DIR=$(dirname "$COMPOSE_FILE")
-          echo "compose dir: $COMPOSE_DIR"
-          echo "Creating .env in $COMPOSE_DIR"
-          echo "DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public" > "$COMPOSE_DIR/.env"
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> "$COMPOSE_DIR/.env"
+          # Start Postgres
+          docker run -d --name db -e POSTGRES_USER=sihur -e POSTGRES_PASSWORD=sihurpassword -e POSTGRES_DB=sihurdb -p 5432:5432 postgres:15
 
-          # Build backend image with plain logs
-          if [ -d "$COMPOSE_DIR/backend" ]; then
-            echo "Building backend image from $COMPOSE_DIR/backend"
-            DOCKER_BUILDKIT=1 docker build --progress=plain -t sihur-backend-ci "$COMPOSE_DIR/backend"
-          else
-            echo "ERROR: backend context not found at $COMPOSE_DIR/backend" >&2
-            exit 1
-          fi
-
-          # Create network
-          docker network create sihur_e2e_net || true
-
-          # Start Postgres container (name 'db' so backend env resolves it)
-          docker run -d --name db --network sihur_e2e_net -e POSTGRES_USER=sihur -e POSTGRES_PASSWORD=sihurpassword -e POSTGRES_DB=sihurdb -p 5432:5432 postgres:15
-
-          # Wait for Postgres
+          # Wait for Postgres to be ready
           for i in {1..30}; do
+            docker logs db || true
             if docker exec db pg_isready -U sihur -d sihurdb >/dev/null 2>&1; then echo "db ready" && break; fi
             echo "waiting for db..."; sleep 2
           done
 
-          # Run backend
-          docker run -d --name sihur_backend --network sihur_e2e_net -e DATABASE_URL="postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public" -e JWT_SECRET="${{ secrets.JWT_SECRET }}" -p 3001:3001 sihur-backend-ci
+          # Install and run the repository server in background
+          if [ -d server ]; then
+            pushd server
+            npm ci
+            # Pass envs
+            export DATABASE_URL="postgresql://sihur:sihurpassword@localhost:5432/sihurdb?schema=public"
+            export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+            nohup npm start &
+            popd
+          else
+            echo "server folder not found; cannot start local server" >&2
+            exit 1
+          fi
 
       - name: Wait for backend
         run: |
