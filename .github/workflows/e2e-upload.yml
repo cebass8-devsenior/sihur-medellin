@@ -34,8 +34,8 @@ jobs:
           docker compose version || sudo apt-get update -qq && sudo apt-get install -y docker-compose-plugin
 
       - name: Build and start backend + db with Docker Compose
-        working-directory: ./sihur-v2
         run: |
+          cd sihur-v2
           # create a minimal .env for the backend if not present
           cat > .env <<EOF
           DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public
@@ -60,5 +60,6 @@ jobs:
 
       - name: Tear down
         if: always()
-        working-directory: ./sihur-v2
-        run: docker compose -f docker-compose.yml down -v
+        run: |
+          cd sihur-v2 || exit 0
+          docker compose -f docker-compose.yml down -v
