@@ -18,6 +18,14 @@ jobs:
         with:
           node-version: 18
 
+      - name: Ensure full checkout
+        run: |
+          # actions/checkout may perform sparse or partial checkouts; force a full checkout to ensure all files are present
+          git fetch --no-tags --prune origin main
+          git checkout --force origin/main
+          git reset --hard origin/main
+          echo "after force checkout:"; ls -la
+
       - name: Build and start backend + db (docker build + run)
         run: |
           set -euo pipefail
