@@ -29,19 +29,14 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Docker Compose plugin if missing
-        run: |
-          docker compose version || sudo apt-get update -qq && sudo apt-get install -y docker-compose-plugin
-
       - name: Build and start backend + db with Docker Compose
         run: |
-          cd sihur-v2
           # create a minimal .env for the backend if not present
-          cat > .env <<EOF
+          cat > sihur-v2/.env <<EOF
           DATABASE_URL=postgresql://sihur:sihurpassword@db:5432/sihurdb?schema=public
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           EOF
-          docker compose -f docker-compose.yml up -d --build db backend
+          docker compose -f sihur-v2/docker-compose.yml up -d --build db backend
 
       - name: Wait for backend
         run: |
@@ -61,5 +56,4 @@ jobs:
       - name: Tear down
         if: always()
         run: |
-          cd sihur-v2 || exit 0
-          docker compose -f docker-compose.yml down -v
+          docker compose -f sihur-v2/docker-compose.yml down -v || true
